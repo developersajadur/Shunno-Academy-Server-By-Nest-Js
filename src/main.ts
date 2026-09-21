@@ -109,7 +109,7 @@ async function bootstrap() {
   app.enableShutdownHooks();
 
   const port = configService.get<number>('port') || 5000;
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
   logger.log(`🚀 Shunno Academy NestJS server running on port: ${port}`);
   if (nodeEnv !== 'production') {
     logger.log(`📚 Swagger documentation available at: http://localhost:${port}/api/docs`);
