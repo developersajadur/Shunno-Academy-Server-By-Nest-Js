@@ -93,10 +93,21 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       errorEmail = (exception as any).email;
     }
 
-    errorLogger.error(
-      `[${request.method}] ${request.originalUrl} - ${message}`,
-      { stack: (exception as any)?.stack },
-    );
+    if (statusCode === HttpStatus.TOO_MANY_REQUESTS) {
+      message = 'অতিরিক্ত রিকোয়েস্ট পাঠানো হয়েছে। অনুগ্রহ করে কিছুক্ষণ পর আবার চেষ্টা করুন (Too Many Requests)।';
+      errorSources = [{ path: '', message }];
+    }
+
+    if (statusCode >= 500) {
+      errorLogger.error(
+        `[${request.method}] ${request.originalUrl} - ${message}`,
+        { stack: (exception as any)?.stack },
+      );
+    } else {
+      errorLogger.warn(
+        `[${request.method}] ${request.originalUrl} (${statusCode}) - ${message}`,
+      );
+    }
 
     const isProd = process.env.NODE_ENV === 'production';
     const clientMessage = isProd && statusCode === HttpStatus.INTERNAL_SERVER_ERROR
